@@ -1,107 +1,62 @@
-const createError = require('http-errors');
+// re-worked following Jacob's walkthrough
+// re-worked with Juddie
+
+//images post but the upload view page is non-working
+
 const express = require('express');
+const multer = require('multer');
+const pug = require('pug');
 const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-
 const app = express();
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
+const port = 3000;
 
-const multer = require('multer')
-const port = 3000
-const { response } = require('express')
-const fs = require('fs')
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.use(express.static('./public'));
 
 // multer
-
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './public/uploads');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + file.originalname);
-  }
+    destination: function (req, file, cb) {
+        cb(null, "./public/uploads");
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + uuidv4() + path.extname(file.originalname));
+    }
 });
 
-const upload = multer({ storage: storage });
-
-// app code 
-
-app.get('/', (req, res) => {
-  fs.readdir(path, function(err, items) {
-   let newImage = items.map(img => `<img src='/uploads/${img}' width='250px' >`)
-   console.log(newImage);
-   res.send(`<h1>Welcome to Kenziegram!</h1>
-   <form action="/upload" method="POST" enctype="multipart/form-data">
-   <input type="file" name="myImage" />
-   <input type="submit" name="submit" />
- </form>
- 
- <div id="home"> `
-    + newImage.join("") + 
-    "</div>"
-    
-    ) 
-    
-  });
-
-})
-app.post('/upload', upload.single('myImage'), (req, res) => {
-  res.send(`<img id="images" width='250px' src="/uploads/${req.file.filename}">
-  <body> 
-      SUCCESS!
-      
-      <input action="action"onclick="window.history.go(-1); return false;" type="submit"value="Back"/>    
-  
-  </body>`
-  );
-  console.log(req.body)
-  response.end('success');
-});
-
-app.use(function (err, req, res, next) {
-  if (err instanceof multer.MulterError) res.status(500).send(err.message);
-  else next(err);
-});
-
-app.listen(port, () => {
-console.log(`Example app listening at http://localhost:${port}`)
+app.get('/', function (req, res) {
+    const path = "../public/uploads";
+    fs.readdir(path, function (err, items) {
+        res.render("index", { label: "Welcome to Kenziegram 2", photos: items })
+    });
 })
 
+const uploads = multer({
+    storage: storage,
+    limits: { fileSize: 1000000 },
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
+});
 
+function checkFileType(file, cb) {
+  const filetypes = /jpeg|jpg|png|gif/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+      if (mimetype && extname) {
+        return cb(null, true);
+      } else {
+        cb('Error: Images Only!');
+        }
+}
 
+// Pug
+app.set('view engine', 'pug');
 
+// TODO: cannot resolve req.file.filename error
+app.post("/upload", upload.single('myFile'), (res, req) => {
+    let photos = req.file.filename
+    res.render("uploads", { photos });
+});
 
-
-module.exports = app;
+app.listen(port, () => console.log(`Server started on port ${port}`));

@@ -1,0 +1,43 @@
+html
+  head
+    title= greeting
+  body
+    h1= greeting
+    form(method='post', action='/uploads' enctype='multipart/form-data')
+      input(type='file', name='myFile')
+      input(type='submit', name='myFile', value='Upload Image')
+      div
+        each photo in photos
+          img(src="/uploads/"+photo)
+          img(src=val)
+//- extends layout
+//- block content
+//-   h1= title
+//-     p Welcome to #{title}
+//-   div 
+//-     each photo in picture 
+//-       img(src=`/uploads/${photo}` width='250px')
+//-     h2= title
+//-     form(name="upload-form", method="post")
+//-         div.input
+//-             span.label Submit
+//-             input(type="file", name="myImage")
+//-         div.actions
+//-             input(type="submit", value="Submit")
+//- form(method="POST", action="/upload")
+//- input(type="hidden", name="method", enctype="multipart/form-data")
+//-   p NAME
+//-     input(type="file", name="myImage")   
+//-   p   
+//-   input(type="submit", name="submit")
+//-   `<h1>Welcome to Kenziegram!</h1>
+//-    <form action="/upload" method="POST" enctype="multipart/form-data">
+//-    <input type="file" name="myImage" />
+//-    <input type="submit" name="submit" />
+//-  </form> 
+//-  <div id="home"> `
+//-     + newImage.join("") + 
+//-     "</div>" from the get request, pass the file name, inside pug, create the img tag
+//- app.listen(port, () => {
+//- console.log(`Example app listening at http://localhost:${port}`)
+//- })
