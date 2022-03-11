@@ -1,16 +1,18 @@
 // re-worked following Jacob's walkthrough
 // re-worked with Juddie
 
-//images post but the upload view page is non-working
+//images post but the upload view page is non-workinggit 
 
 const express = require('express');
+const app = express();
+const port = 3000;
+app.set('port', port) // new 03/11/2022
+module.exports = app; // new -3/11/2022
 const multer = require('multer');
 const pug = require('pug');
 const path = require('path');
-const app = express();
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const port = 3000;
 
 app.use(express.static('./public'));
 
@@ -53,8 +55,8 @@ function checkFileType(file, cb) {
 // Pug
 app.set('view engine', 'pug');
 
-// TODO: cannot resolve req.file.filename error
-app.post("/upload", upload.single('myFile'), (res, req) => {
+// TODO: cannot resolve req.file.filename error, changed upload to uploads 03/11/2022
+app.post("/upload", uploads.single('myFile'), (res, req) => {
     let photos = req.file.filename
     res.render("uploads", { photos });
 });
