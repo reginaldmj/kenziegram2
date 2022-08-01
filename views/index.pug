@@ -7,9 +7,11 @@ html
       input(type='file', name='myFile')
       input(type='submit', name='myFile', value='Upload Image')
       div
-        each photo in photos
+        each photo in photos ? photos : []
           img(src="/uploads/"+photo)
           img(src=val)
+
+//- // new ? photos ? photos : [] 03/27/2022 line 10
 //- extends layout
 //- block content
 //-   h1= title
